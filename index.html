@@ -3,10 +3,12 @@
 <head>
 
     <meta charset="UTF-8">
-    <title>Hello World</title>
+    <title>Singapore Population Density</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
     <link href="https://fonts.googleapis.com/css2?family=Inconsolata&family=Libre+Franklin:wght@600&display=swap" rel="stylesheet"> 
     <style>
+
+        /* General styling */
         body {
             /*Gruvbox-Light colors*/
             --bg0: #fbf1c7;   --fg0: #282828;
@@ -37,45 +39,96 @@
         a:link {color: var(--org_d);text-decoration: none;}
         a:visited {color: var(--red);}
         a:hover {color: var(--org);}
+
+        /* Map styling */
+        #districts {
+            fill-opacity: 0.7;
+            stroke: var(--fg4);
+            stroke-width: 0.6px;
+        }
     </style>
 </head>
 
 <body>
 
+<h1>Where do Singaporeans live in 2021?</h1>
+<p>Subtitle</p>
+
 <svg></svg>
+
+<p><em>Source:</em> placeholder</p>
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
 
 <script>
 
-let w = 1000, h = 600;
+// define dimensions
+let w = 1000, h = 600, gutter = 20;
 
+// define uris
+let subzones_uri = "https://raw.githubusercontent.com/anafabulic/HASS-assignment4/main/sgmap.json";
+let pop21_uri = "https://raw.githubusercontent.com/anafabulic/HASS-assignment4/main/population2021.csv";
+
+// define d3 selection
 let svg = d3.select("svg")
-    .attr("viewBox", "0 0 " + w + " " + h);
+    .attr("viewBox", `0 0 ${w} ${h}`);
 
-// Load external data and boot
-Promise.all([d3.json("./sgmap.json"), d3.csv("./population2021.csv")]).then(data => {
+// load external data and draw map
+Promise.all([d3.json(subzones_uri), d3.csv(pop21_uri)]).then(data => {
 
-    let sgmap = data[0];
-    let pop2021 = data[1];
-    let sgcentre = [103.851959, 1.290270];
-    let gutter = 20;
+    // define vars
+    let subzones = data[0];
+    let pop21 = data[1];
+    let min = 0, max = 0;
+
+    // clean annoying-ass values
+    function rename_subzone(input, output) {
+        pop21[pop21.findIndex((item) =>
+            item.Subzone === input
+        )].Subzone = output;
+    };
+    rename_subzone("Lakeside (Leisure)", "Lakeside");
+    rename_subzone("Murai", "Western Water Catchment");
+    rename_subzone("Forest Hill", "Tengah");
+
+    // join population data into subzones.features.d[0]
+    subzones.features.forEach(function(item) {
+        // append csv row to item.pop
+        item.pop = pop21.filter(entry =>
+            entry.Subzone.toUpperCase() === item.properties["Subzone Name"]
+        );
+        // fix null values
+        if (item.pop[0].Population == "-") {
+            item.pop[0].Population = "0";
+        };
+        // calculate pop density
+        item.pop[0].Density = parseFloat(item.pop[0].Population)/parseFloat(item.properties.SHAPE_Area);
+        // update maximum value
+        if (parseFloat(item.pop[0].Density) > max) {
+            max = item.pop[0].Density;
+        };
+    });
     
-    // Map and projection
-    var projection = d3.geoMercator()
-        .center(sg_centre)
-        .fitExtent([[gutter, gutter], [w-gutter, h-gutter]], sgmap);
-    
+    // define d3 projection
+    let projection = d3.geoMercator()
+        .fitExtent([[gutter,gutter], [w-gutter,h-gutter]], subzones);
     let geopath = d3.geoPath().projection(projection);
+
+    // define scale
+    let colorscale = d3.scaleSequential()
+        .domain([min,max])
+        .range([1,0]);
     
+    // draw map
     svg.append("g")
         .attr("id", "districts")
         .selectAll("path")
-        .data(sgmap.features)
+        .data(subzones.features)
         .enter()
         .append("path")
         .attr("d", geopath)
-        .attr("fill", "black");
+        .attr("id", d => d.properties["Subzone Name"])
+        .attr("fill", d => d3.interpolateInferno(colorscale(d.pop[0].Density)));
 })
 
 </script>
