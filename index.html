@@ -159,7 +159,7 @@ Promise.all([d3.json(subzones_uri), d3.csv(pop21_uri)]).then(data => {
                 .style("top", (event.pageY) + "px")
                 .style("translate", "0 2.4em");
             d3.select(".tooltip-density")
-                .text(`Density: ${((d.pop[0]["Density"]).toFixed(3)*1e6).toLocaleString('en-US')} persons/sq km `)
+                .text(`Density: ${((d.pop[0]["Density"]).toFixed(5)*1e6).toLocaleString('en-US')} persons/sq km `)
                 .style("left", (event.pageX) + "px")
                 .style("top", (event.pageY) + "px")
                 .style("translate", "0 3.6em");
