@@ -164,8 +164,11 @@ Promise.all([d3.json(subzones_uri), d3.csv(pop21_uri)]).then(data => {
                 .style("top", (event.pageY) + "px")
                 .style("translate", "0 3.6em");
             d3.select(event.currentTarget)
-                .attr("stroke","var(--fg3)")
-                .attr("stroke-width","1.8");
+                .attr("stroke","var(--fg4)")
+                .attr("stroke-width","1.8")
+                .transition()
+                .duration(300)
+                .attr("opacity","1.0");
             // event.currentTarget returns the original data.features
         })
         .on("mouseout", (event, d) => {
@@ -179,7 +182,10 @@ Promise.all([d3.json(subzones_uri), d3.csv(pop21_uri)]).then(data => {
                 .text("");
             d3.select(event.currentTarget)
                 .attr("stroke","var(--fg4)")
-                .attr("stroke-width","0.6");
+                .attr("stroke-width","0.6")
+                .transition()
+                .duration(200)
+                .attr("opacity","0.7");
         });
         // remember to reset things on mouseout!
 
