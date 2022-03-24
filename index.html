@@ -227,6 +227,9 @@ Promise.all([d3.json(subzones_uri), d3.csv(pop21_uri)]).then(data => {
         .attr("transform",d => `translate(0, ${d.ord*30})`)
         .attr("stroke","var(--fg4")
         .attr("stroke-width","0.6")
+        .transition()
+        .duration(500)
+        .attr("opacity","0.7")
         .attr("fill",d => d3.interpolateInferno(colorscale(d.value)));
 
     d3.select("#legend")
