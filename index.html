@@ -166,9 +166,7 @@ Promise.all([d3.json(subzones_uri), d3.csv(pop21_uri)]).then(data => {
             d3.select(event.currentTarget)
                 .attr("stroke","var(--fg4)")
                 .attr("stroke-width","1.8")
-                .transition()
-                .duration(300)
-                .attr("opacity","1.0");
+                .attr("fill-opacity","1.0");
             // event.currentTarget returns the original data.features
         })
         .on("mouseout", (event, d) => {
@@ -183,9 +181,7 @@ Promise.all([d3.json(subzones_uri), d3.csv(pop21_uri)]).then(data => {
             d3.select(event.currentTarget)
                 .attr("stroke","var(--fg4)")
                 .attr("stroke-width","0.6")
-                .transition()
-                .duration(200)
-                .attr("opacity","0.7");
+                .attr("fill-opacity","0.7");
         });
         // remember to reset things on mouseout!
 
@@ -227,9 +223,7 @@ Promise.all([d3.json(subzones_uri), d3.csv(pop21_uri)]).then(data => {
         .attr("transform",d => `translate(0, ${d.ord*30})`)
         .attr("stroke","var(--fg4")
         .attr("stroke-width","0.6")
-        .transition()
-        .duration(500)
-        .attr("opacity","0.7")
+        .attr("fill-opacity","0.7")
         .attr("fill",d => d3.interpolateInferno(colorscale(d.value)));
 
     d3.select("#legend")
